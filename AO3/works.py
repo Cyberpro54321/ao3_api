@@ -615,7 +615,7 @@ class Work:
     def workskin(self):
         """Returns the CSS code for this work's workskin"""
         skin = self._soup.find("style", {"type": "text/css"})
-        return skin
+        return skin.decode_contents()
 
     @cached_property
     def nchapters(self):

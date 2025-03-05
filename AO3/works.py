@@ -559,6 +559,12 @@ class Work:
         return author_list
 
     @cached_property
+    def workskin(self):
+        """Returns the CSS code for this work's workskin"""
+        skin = self._soup.find("style", {"type": "text/css"})
+        return skin
+
+    @cached_property
     def nchapters(self):
         """Returns the number of chapters of this work
 

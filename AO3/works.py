@@ -565,9 +565,11 @@ class Work:
         Returns:
             str: CSS code for the workskin. Empty string if no workskin.
         """
-        skin = self._soup.find("style", {"type": "text/css"})
-        if skin is not None:
-            return str(skin.decode_contents())
+        allStyles = self._soup.find_all("style", {"type": "text/css"})
+        if len(allStyles) != 0:
+            text = str(allStyles[-1].decode_contents())
+            if text.find("#workskin") != -1:
+                return text
         return ""
 
     @cached_property

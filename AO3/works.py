@@ -560,10 +560,14 @@ class Work:
 
     @cached_property
     def workskin(self):
-        """Returns the CSS code for this work's workskin"""
+        """Returns the CSS code for this work's workskin
+
+        Returns:
+            str: CSS code for the workskin. Empty string if no workskin.
+        """
         skin = self._soup.find("style", {"type": "text/css"})
         if skin is not None:
-            return skin.decode_contents()
+            return str(skin.decode_contents())
         return ""
 
     @cached_property

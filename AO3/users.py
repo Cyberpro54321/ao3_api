@@ -399,6 +399,8 @@ class User:
                 raise utils.HTTPError(
                     "Error 429: We are being rate-limited. Try again in a while or reduce the number of requests"
                 )
+            case 503:
+                raise utils.HTTPError("Error 503: Resource Busy")
             case 525:
                 raise utils.HTTPError("Error 525: SSL Error")
         return req

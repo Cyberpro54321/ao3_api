@@ -78,33 +78,31 @@ class User:
                     delattr(self, attr)
 
         @threadable.threadable
-        def req_works(username):
-            self._soup_works = self.request(
-                f"https://archiveofourown.org/users/{username}/works"
-            )
-            token = self._soup_works.find("meta", {"name": "csrf-token"})
+        def req_page(username, page):
+            gotSoup = False
+            while not gotSoup:
+                try:
+                    soup = self.request(
+                        f"https://archiveofourown.org/users/{username}/{page}"
+                    )
+                except utils.HTTPError:
+                    pass
+                else:
+                    gotSoup = bool(soup)
+            token = soup.find("meta", {"name": "csrf-token"})
             setattr(self, "authenticity_token", token["content"])
-
-        @threadable.threadable
-        def req_profile(username):
-            self._soup_profile = self.request(
-                f"https://archiveofourown.org/users/{username}/profile"
-            )
-            token = self._soup_profile.find("meta", {"name": "csrf-token"})
-            setattr(self, "authenticity_token", token["content"])
-
-        @threadable.threadable
-        def req_bookmarks(username):
-            self._soup_bookmarks = self.request(
-                f"https://archiveofourown.org/users/{username}/bookmarks"
-            )
-            token = self._soup_bookmarks.find("meta", {"name": "csrf-token"})
-            setattr(self, "authenticity_token", token["content"])
+            match page:
+                case "works":
+                    self._soup_works = soup
+                case "profile":
+                    self._soup_profile = soup
+                case "bookmarks":
+                    self._soup_bookmarks = soup
 
         rs = [
-            req_works(self.username, threaded=True),
-            req_profile(self.username, threaded=True),
-            req_bookmarks(self.username, threaded=True),
+            req_page(self.username, "works", threaded=True),
+            req_page(self.username, "profile", threaded=True),
+            req_page(self.username, "bookmarks", threaded=True),
         ]
         for r in rs:
             r.join()

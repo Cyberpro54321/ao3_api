@@ -1001,6 +1001,8 @@ class Work:
                 )
             case 525:
                 raise utils.HTTPError("Error 525: SSL Error")
+        if req.history and req.url.find("/users/login?restricted=true") != -1:
+            raise utils.PrivateWorkError(f"Error 302: Redirected to [{req.url}]")
         return req
 
     def request(self, url):

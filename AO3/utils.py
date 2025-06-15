@@ -79,6 +79,12 @@ class CollectError(Exception):
         self.errors = errors
 
 
+class PrivateWorkError(Exception):
+    def __init__(self, message, errors=[]):
+        super().__init__(message)
+        self.errors = errors
+
+
 class Query:
     def __init__(self):
         self.fields = []

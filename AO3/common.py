@@ -7,25 +7,26 @@ def __setifnotnone(obj, attr, value):
     if value is not None:
         setattr(obj, attr, value)
 
+
 def get_work_from_banner(work):
-    #* These imports need to be here to prevent circular imports
-    #* (series.py would requite common.py and vice-versa)
+    # * These imports need to be here to prevent circular imports
+    # * (series.py would requite common.py and vice-versa)
     from .series import Series
     from .users import User
     from .works import Work
-    
+
     authors = []
     try:
         for a in work.h4.find_all("a"):
-            if 'rel' in a.attrs.keys():
-                if "author" in a['rel']:
+            if "rel" in a.attrs.keys():
+                if "author" in a["rel"]:
                     authors.append(User(a.string, load=False))
             elif a.attrs["href"].startswith("/works"):
                 workname = a.string
-                workid = utils.workid_from_url(a['href'])
+                workid = utils.workid_from_url(a["href"])
     except AttributeError:
         pass
-            
+
     new = Work(workid, load=False)
 
     fandoms = []
@@ -41,13 +42,13 @@ def get_work_from_banner(work):
     freeforms = []
     try:
         for a in work.find(attrs={"class": "tags"}).find_all("li"):
-            if "warnings" in a['class']:
+            if "warnings" in a["class"]:
                 warnings.append(a.text)
-            elif "relationships" in a['class']:
+            elif "relationships" in a["class"]:
                 relationships.append(a.text)
-            elif "characters" in a['class']:
+            elif "characters" in a["class"]:
                 characters.append(a.text)
-            elif "freeforms" in a['class']:
+            elif "freeforms" in a["class"]:
                 freeforms.append(a.text)
     except AttributeError:
         pass
@@ -71,7 +72,7 @@ def get_work_from_banner(work):
     series_list = work.find(attrs={"class": "series"})
     if series_list is not None:
         for a in series_list.find_all("a"):
-            seriesid = int(a.attrs['href'].split("/")[-1])
+            seriesid = int(a.attrs["href"].split("/")[-1])
             seriesname = a.text
             s = Series(seriesid, load=False)
             setattr(s, "name", seriesname)
@@ -85,45 +86,61 @@ def get_work_from_banner(work):
         words = stats.find("dd", {"class": "words"})
         if words is not None:
             words = words.text.replace(",", "")
-            if words.isdigit(): words = int(words)
-            else: words = None
+            if words.isdigit():
+                words = int(words)
+            else:
+                words = None
         bookmarks = stats.find("dd", {"class": "bookmarks"})
         if bookmarks is not None:
             bookmarks = bookmarks.text.replace(",", "")
-            if bookmarks.isdigit(): bookmarks = int(bookmarks)
-            else: bookmarks = None
+            if bookmarks.isdigit():
+                bookmarks = int(bookmarks)
+            else:
+                bookmarks = None
         chapters = stats.find("dd", {"class": "chapters"})
         if chapters is not None:
-            chapters = chapters.text.split('/')[0].replace(",", "")
-            if chapters.isdigit(): chapters = int(chapters)
-            else: chapters = None
+            chapters = chapters.text.split("/")[0].replace(",", "")
+            if chapters.isdigit():
+                chapters = int(chapters)
+            else:
+                chapters = None
         expected_chapters = stats.find("dd", {"class": "chapters"})
         if expected_chapters is not None:
-            expected_chapters = expected_chapters.text.split('/')[-1].replace(",", "")
-            if expected_chapters.isdigit(): expected_chapters = int(expected_chapters)
-            else: expected_chapters = None
+            expected_chapters = expected_chapters.text.split("/")[-1].replace(",", "")
+            if expected_chapters.isdigit():
+                expected_chapters = int(expected_chapters)
+            else:
+                expected_chapters = None
         hits = stats.find("dd", {"class": "hits"})
         if hits is not None:
             hits = hits.text.replace(",", "")
-            if hits.isdigit(): hits = int(hits)
-            else: hits = None
+            if hits.isdigit():
+                hits = int(hits)
+            else:
+                hits = None
         kudos = stats.find("dd", {"class": "kudos"})
         if kudos is not None:
             kudos = kudos.text.replace(",", "")
-            if kudos.isdigit(): kudos = int(kudos)
-            else: kudos = None
+            if kudos.isdigit():
+                kudos = int(kudos)
+            else:
+                kudos = None
         comments = stats.find("dd", {"class": "comments"})
         if comments is not None:
             comments = comments.text.replace(",", "")
-            if comments.isdigit(): comments = int(comments)
-            else: comments = None
+            if comments.isdigit():
+                comments = int(comments)
+            else:
+                comments = None
         restricted = work.find("img", {"title": "Restricted"}) is not None
         if chapters is None:
             complete = None
         else:
             complete = chapters == expected_chapters
     else:
-        language = words = bookmarks = chapters = expected_chapters = hits = restricted = complete = None
+        language = words = bookmarks = chapters = expected_chapters = hits = (
+            restricted
+        ) = complete = None
 
     date = work.find("p", {"class": "datetime"})
     if date is None:
@@ -153,8 +170,9 @@ def get_work_from_banner(work):
     __setifnotnone(new, "title", workname)
     __setifnotnone(new, "warnings", warnings)
     __setifnotnone(new, "words", words)
-    
+
     return new
+
 
 def url_join(base, *args):
     result = base

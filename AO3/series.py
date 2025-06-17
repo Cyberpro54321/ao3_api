@@ -368,6 +368,8 @@ class Series:
             req = requester.request("get", *args, **kwargs, session=self._session.session)
         if req.status_code == 429:
             raise utils.HTTPError("We are being rate-limited. Try again in a while or reduce the number of requests")
+        if req.history and req.url.find("/users/login?restricted=true") != -1:
+            raise utils.PrivateWorkError(f"Error 302: Redirected to [{req.url}]")
         return req
 
     def request(self, url):

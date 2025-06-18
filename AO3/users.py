@@ -248,7 +248,7 @@ class User:
             list: List of works
         """
 
-        if self._works is None:
+        if (not self._works) or (self.works != len(self._works)):
             if use_threading:
                 self.load_works_threaded()
             else:
@@ -275,11 +275,18 @@ class User:
     def _load_works(self, page=1):
         from .works import Work
 
-        self._soup_works = self.request(
-            f"https://archiveofourown.org/users/{self.username}/works?page={page}"
-        )
+        soup = None
+        if page == 1 and self._soup_works:
+            soup = self._soup_works
+        while not soup:
+            try:
+                soup = self.request(
+                    f"https://archiveofourown.org/users/{self.username}/works?page={page}"
+                )
+            except utils.HTTPError:
+                pass
 
-        ol = self._soup_works.find("ol", {"class": "work index group"})
+        ol = soup.find("ol", {"class": "work index group"})
 
         for work in ol.find_all("li", {"role": "article"}):
             if work.h4 is None:

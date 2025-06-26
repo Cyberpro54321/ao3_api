@@ -3,6 +3,7 @@ from functools import cached_property
 
 import requests
 from bs4 import BeautifulSoup
+import time
 
 from . import threadable, utils
 from .common import get_work_from_banner
@@ -85,8 +86,9 @@ class User:
                     soup = self.request(
                         f"https://archiveofourown.org/users/{username}/{page}"
                     )
-                except utils.HTTPError:
-                    pass
+                except utils.HTTPError as ex:
+                    if "429" in str(ex):
+                        time.sleep(10)
                 else:
                     gotSoup = bool(soup)
             token = soup.find("meta", {"name": "csrf-token"})
@@ -283,8 +285,9 @@ class User:
                 soup = self.request(
                     f"https://archiveofourown.org/users/{self.username}/works?page={page}"
                 )
-            except utils.HTTPError:
-                pass
+            except utils.HTTPError as ex:
+                if "429" in str(ex):
+                    time.sleep(10)
 
         ol = soup.find("ol", {"class": "work index group"})
 

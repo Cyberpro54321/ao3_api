@@ -228,7 +228,11 @@ class User:
             "div", {"class": "works-index dashboard filtered region"}
         )
         h2 = div.h2.text.split()
-        return int(h2[4].replace(",", ""))
+        if "of" in h2:
+            target = h2[1 + h2.index("of")]
+        else:
+            target = h2[0]
+        return int(target.replace(",", ""))
 
     @cached_property
     def _works_pages(self):
